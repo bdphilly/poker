@@ -41,6 +41,25 @@ class Hand
     @cards = cards
   end
 
+  def evaluate_hand
+    outcomes = [
+      royal_flush?,
+      four_of_kind?,
+      full_house?,
+      flush?,
+      straight?,
+      three_of_kind?,
+      two_pair?,
+      two_of_kind?
+    ]
+
+    outcomes.each_with_index do |outcome, i|
+      return i if outcome
+    end
+
+    30
+  end
+
   def royal_flush?
     suit = cards[0].suit
 
@@ -93,7 +112,6 @@ class Hand
     ((array_of_indicies.last - array_of_indicies.first) == 4) ||
     ((array_of_indicies.last - array_of_indicies.first) == 12 ) &&
     (array_of_indicies.uniq.count == 5)
-
   end
 
   def three_of_kind?
@@ -131,5 +149,80 @@ class Hand
     occurences.has_value?(2)
   end
 end
+
+class Player
+
+  attr_accessor :pot, :hand
+
+  def initialize(pot = 100)
+    @pot = pot
+  end
+  # hand = Hand.new(deck.deal)
+  #in Game class, to deal:   player_1.new_hand(hand)
+
+  def discard
+
+    # organize hand into sorted array of cards
+    #### METHOD
+
+    puts "here is your hand #{hand}"
+
+    puts 'what cards? you can only discard 3.'
+
+    #the player returns [2,3]
+    ##### METHOD
+
+    # find hand[2], hand[3] and remove from hand
+    ##### METHOD
+
+    # hand currently has 3 cards
+
+    # hand << deck.deal(2)
+
+    #RETURNS new hand
+
+
+    #....player1.hand = the new hand
+  end
+
+
+
+end
+
+
+
+# class Game
+#
+#   attr_accessor :deck
+#
+#   def initialize
+#     @player1 = Player.new
+#     @player2 = Player.new
+#   end
+#
+#
+#   def play
+#     @deck = Deck.new
+#
+#     @player1.hand = Hand.new(deck.deal)
+#     @player2.hand = Hand.new(deck.deal)
+#
+#     puts 'do you want to discard, player 1?'
+#     if gets.chomp == 'y'
+#       @player1.hand = @player1.discard
+#
+#
+#
+#   end
+# end
+
+
+
+
+
+
+
+
+
 
 

@@ -171,12 +171,78 @@ describe Hand do
           ])
         expect(hand.two_of_kind?).to be true
       end
+  end
 
+  describe "returns relative hand value" do
 
+    it "should return 0 for royal flush (low value wins)" do
+      hand = Hand.new([
+        Card.new(:heart, :ace),
+        Card.new(:heart, :king),
+        Card.new(:heart, :queen),
+        Card.new(:heart, :jack),
+        Card.new(:heart, :ten)
+        ])
+      expect(hand.evaluate_hand).to eq(0)
+    end
+
+    it "should return 30 if there are no 'winning' hands" do
+      hand = Hand.new([
+        Card.new(:heart, :ace),
+        Card.new(:heart, :king),
+        Card.new(:heart, :four),
+        Card.new(:spade, :jack),
+        Card.new(:heart, :ten)
+        ])
+      expect(hand.evaluate_hand).to eq(30)
+    end
   end
 end
 
+describe Player do
 
+  let(:player) { Player.new }
+  let(:hand) { Hand.new(deck.deal) }
+  let(:deck) { Deck.new }
+
+  describe '#initialize' do
+    it 'should be a player' do
+      expect(player).to be_a(Player)
+    end
+  end
+
+  describe '#pot' do
+    it 'should have a pot' do
+      expect(player.pot).to_not be_nil
+    end
+  end
+
+  describe '#new_hand' do
+    it 'should deal a new hand to the player' do
+      expect(player.new_hand(hand)).to be_a(Hand)
+    end
+  end
+
+  # describe '#get_cards_to_discard' do
+  #   it 'should receive array of cards from the user' do
+  #     expect(player.get_cards_to_discard(cards)).to be_a(Array)
+  #   end
+  #
+  #   it 'should receive array of cards from the user' do
+  #     expect(player.get_cards_to_discard(cards)).to be_a(Array)
+  #   end
+  # end
+
+
+  # describe '#discard' do
+  #   old_hand = hand
+  #   it 'should return a new hand when called' do
+  #     expect(player.discard).to_not eq(old_hand)
+  #   end
+  # end
+
+
+end
 
 
 
