@@ -7,8 +7,15 @@ class Card
              :nine, :eight, :seven, :six, :five,
              :four, :three, :two ]
 
+  NUM_VALUE =   { :ace => 14, :king => 13, :queen => 12,
+                  :jack => 11, :ten => 10, :nine => 9,
+                  :eight => 8, :seven => 7, :six => 6,
+                  :five => 5, :four => 4, :three => 3,
+                  :two => 2
+                }
+
   def initialize(suit, value)
-    @suit, @value = suit, value
+      @suit, @value = suit, value
   end
 end
 
@@ -41,23 +48,57 @@ class Hand
     @cards = cards
   end
 
+  def beats?(opposing_hand)
+
+    if self.evaluate_hand < opposing_hand.evaluate_hand
+      return false
+    elsif self.evaluate_hand > opposing_hand.evaluate_hand
+      return true
+    else
+      return self.convert_to_string > opposing_hand.convert_to_string
+    end
+  end
+
+  def convert_to_string
+    array_of_nums = []
+    cards.each do |card|
+      array_of_nums << Card::NUM_VALUE[card.value]
+    end
+
+    (array_of_nums.sort!).reverse!
+
+    string_representation = ''
+    array_of_nums.each do |element|
+      string_representation += element.to_s.rjust(2, '0')
+    end
+
+    if self.straight? && string_representation[-1] == '2'
+      string_representation[0..1] = ''
+      string_representation += '01'
+    end
+
+    string_representation
+
+  end
+
   def evaluate_hand
     outcomes = [
       royal_flush?,
       four_of_kind?,
       full_house?,
+      straight_flush?,
       flush?,
       straight?,
       three_of_kind?,
       two_pair?,
-      two_of_kind?
+      one_pair?
     ]
 
     outcomes.each_with_index do |outcome, i|
-      return i if outcome
+      return 9 - i if outcome
     end
 
-    30
+    0
   end
 
   def royal_flush?
@@ -82,7 +123,7 @@ class Hand
   end
 
   def full_house?
-    three_of_kind? && two_of_kind?
+    three_of_kind? && one_pair?
   end
 
   def flush?
@@ -93,6 +134,10 @@ class Hand
     end
 
     occurences.has_value?(5)
+  end
+
+  def straight_flush?
+    flush? && straight?
   end
 
   def straight?
@@ -109,9 +154,9 @@ class Hand
 
     array_of_indicies.sort!
 
-    ((array_of_indicies.last - array_of_indicies.first) == 4) ||
-    ((array_of_indicies.last - array_of_indicies.first) == 12 ) &&
-    (array_of_indicies.uniq.count == 5)
+    (array_of_indicies.uniq.count == 5) &&
+    (((array_of_indicies.last - array_of_indicies.first) == 4) ||
+    ((array_of_indicies.last - array_of_indicies.first) == 12 ))
   end
 
   def three_of_kind?
@@ -139,7 +184,7 @@ class Hand
     pairs.length == 2
   end
 
-  def two_of_kind?
+  def one_pair?
     occurences = Hash.new(0)
 
     cards.each do |card|
@@ -148,48 +193,47 @@ class Hand
 
     occurences.has_value?(2)
   end
-end
-
-class Player
-
-  attr_accessor :pot, :hand
-
-  def initialize(pot = 100)
-    @pot = pot
-  end
-  # hand = Hand.new(deck.deal)
-  #in Game class, to deal:   player_1.new_hand(hand)
-
-  def discard
-
-    # organize hand into sorted array of cards
-    #### METHOD
-
-    puts "here is your hand #{hand}"
-
-    puts 'what cards? you can only discard 3.'
-
-    #the player returns [2,3]
-    ##### METHOD
-
-    # find hand[2], hand[3] and remove from hand
-    ##### METHOD
-
-    # hand currently has 3 cards
-
-    # hand << deck.deal(2)
-
-    #RETURNS new hand
-
-
-    #....player1.hand = the new hand
-  end
-
-
 
 end
-
-
+#
+# class Player
+#
+#   attr_accessor :pot, :hand
+#
+#   def initialize(pot = 100)
+#     @pot = pot
+#   end
+#   # hand = Hand.new(deck.deal)
+#   #in Game class, to deal:   player_1.new_hand(hand)
+#
+#   def discard
+#
+#     # organize hand into sorted array of cards
+#     #### METHOD
+#
+#     puts "here is your hand #{hand}"
+#
+#     puts 'what cards? you can only discard 3.'
+#
+#     #the player returns [2,3]
+#     ##### METHOD
+#
+#     # find hand[2], hand[3] and remove from hand
+#     ##### METHOD
+#
+#     # hand currently has 3 cards
+#
+#     # hand << deck.deal(2)
+#
+#     #RETURNS new hand
+#
+#
+#     #....player1.hand = the new hand
+#   end
+#
+#
+#
+# end
 
 # class Game
 #
@@ -218,11 +262,9 @@ end
 
 
 
+# Poker hand score
 
-
-
-
-
-
-
-
+# relative hand value +
+# needs to sort cards. suit doesn't matter.
+# 14 for ace, 13 for king, 12 for queen, 11 for jack, 10 for 10, 9 for 9, etc.
+#

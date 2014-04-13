@@ -74,11 +74,11 @@ describe Hand do
 
       it "should recognize four of a kind" do
         hand = Hand.new([
-          Card.new(:heart, :ace),
-          Card.new(:heart, :ace),
-          Card.new(:spade, :ace),
-          Card.new(:heart, :ace),
-          Card.new(:heart, :ten)
+          Card.new(:heart,   :ace),
+          Card.new(:club,    :ace),
+          Card.new(:spade,   :ace),
+          Card.new(:diamond, :ace),
+          Card.new(:heart,   :ten)
           ])
         expect(hand.four_of_kind?).to be true
       end
@@ -86,21 +86,33 @@ describe Hand do
       it "should recognize a full house" do
         hand = Hand.new([
           Card.new(:heart, :ace),
-          Card.new(:heart, :ace),
+          Card.new(:spade, :ace),
           Card.new(:heart, :four),
-          Card.new(:heart, :four),
+          Card.new(:club,  :four),
           Card.new(:spade, :four)
           ])
         expect(hand.full_house?).to be true
       end
 
+      it "should recognize a straight flush" do
+        hand = Hand.new([
+          Card.new(:heart, :ten),
+          Card.new(:heart, :nine),
+          Card.new(:heart, :eight),
+          Card.new(:heart, :seven),
+          Card.new(:heart,  :six)
+          ])
+        expect(hand.straight_flush?).to be true
+      end
+
+
       it "should recognize a flush" do
         hand = Hand.new([
-          Card.new(:heart, :ace),
-          Card.new(:heart, :ace),
-          Card.new(:heart, :four),
-          Card.new(:heart, :four),
-          Card.new(:heart, :four)
+          Card.new(:heart, :jack),
+          Card.new(:heart, :king),
+          Card.new(:heart, :two),
+          Card.new(:heart, :five),
+          Card.new(:heart,  :four)
           ])
         expect(hand.flush?).to be true
       end
@@ -116,7 +128,7 @@ describe Hand do
         expect(hand.straight?).to be true
       end
 
-      it "should recognize a straight with a high ace" do
+      it "should recognize a straight with a low ace" do
         hand = Hand.new([
           Card.new(:heart, :ace),
           Card.new(:heart, :two),
@@ -127,7 +139,7 @@ describe Hand do
         expect(hand.straight?).to be true
       end
 
-      it "should recognize a straight with a low ace" do
+      it "should recognize a straight with a high ace" do
         hand = Hand.new([
           Card.new(:heart, :ten),
           Card.new(:heart, :jack),
@@ -141,8 +153,8 @@ describe Hand do
       it "should recognize three of a kind" do
         hand = Hand.new([
           Card.new(:heart, :ace),
-          Card.new(:heart, :ace),
-          Card.new(:heart, :ace),
+          Card.new(:spade, :ace),
+          Card.new(:club,  :ace),
           Card.new(:heart, :nine),
           Card.new(:spade, :ten)
           ])
@@ -154,28 +166,28 @@ describe Hand do
           Card.new(:heart, :ace),
           Card.new(:spade, :ace),
           Card.new(:heart, :seven),
-          Card.new(:heart, :seven),
+          Card.new(:spade, :seven),
           Card.new(:spade, :ten)
           ])
         expect(hand.two_pair?).to be true
       end
 
 
-      it "should recognize two of a kind" do
+      it "should recognize one pair" do
         hand = Hand.new([
-          Card.new(:heart, :ace),
+          Card.new(:spade, :ace),
           Card.new(:heart, :ace),
           Card.new(:heart, :four),
           Card.new(:heart, :six),
           Card.new(:spade, :ten)
           ])
-        expect(hand.two_of_kind?).to be true
+        expect(hand.one_pair?).to be true
       end
   end
 
   describe "returns relative hand value" do
 
-    it "should return 0 for royal flush (low value wins)" do
+    it "should return 8 for royal flush (low value wins)" do
       hand = Hand.new([
         Card.new(:heart, :ace),
         Card.new(:heart, :king),
@@ -183,10 +195,10 @@ describe Hand do
         Card.new(:heart, :jack),
         Card.new(:heart, :ten)
         ])
-      expect(hand.evaluate_hand).to eq(0)
+      expect(hand.evaluate_hand).to eq(9)
     end
 
-    it "should return 30 if there are no 'winning' hands" do
+    it "should return 0 if there are no 'winning' hands" do
       hand = Hand.new([
         Card.new(:heart, :ace),
         Card.new(:heart, :king),
@@ -194,72 +206,185 @@ describe Hand do
         Card.new(:spade, :jack),
         Card.new(:heart, :ten)
         ])
-      expect(hand.evaluate_hand).to eq(30)
+      expect(hand.evaluate_hand).to eq(0)
     end
   end
+
+    it "should know when a jack high straight beats a ten high straight" do
+      hand1 = Hand.new([
+        Card.new(:heart, :jack),
+        Card.new(:heart, :ten),
+        Card.new(:heart, :nine),
+        Card.new(:spade, :eight),
+        Card.new(:heart, :seven)
+        ])
+
+      hand2 = Hand.new([
+        Card.new(:heart, :ten),
+        Card.new(:spade, :nine),
+        Card.new(:heart, :eight),
+        Card.new(:club,  :seven),
+        Card.new(:heart, :six)
+        ])
+      expect(hand1.beats?(hand2)).to be true
+    end
+
+    it "should know when a king high beats a ten high" do
+      hand1 = Hand.new([
+        Card.new(:heart, :jack),
+        Card.new(:heart, :ten),
+        Card.new(:heart, :nine),
+        Card.new(:spade, :king),
+        Card.new(:heart, :two)
+        ])
+
+      hand2 = Hand.new([
+        Card.new(:heart, :ten),
+        Card.new(:spade, :nine),
+        Card.new(:heart, :five),
+        Card.new(:club,  :four),
+        Card.new(:heart, :two)
+        ])
+      expect(hand1.beats?(hand2)).to be true
+    end
+
+  describe '#beats' do
+
+    it "should know when a straight beats two pair" do
+      hand1 = Hand.new([
+        Card.new(:heart, :nine),
+        Card.new(:heart, :eight),
+        Card.new(:heart, :seven),
+        Card.new(:spade, :six),
+        Card.new(:heart, :five)
+        ])
+
+        hand2 = Hand.new([
+        Card.new(:heart, :eight),
+        Card.new(:spade, :seven),
+        Card.new(:heart, :jack),
+        Card.new(:club,  :jack),
+        Card.new(:heart, :seven)
+        ])
+      expect(hand1.beats?(hand2)).to be true
+    end
+
+    it "should know when a higher full house beats a lower full house" do
+      hand1 = Hand.new([
+        Card.new(:heart, :nine),
+        Card.new(:club,  :nine),
+        Card.new(:spade, :nine),
+        Card.new(:spade, :four),
+        Card.new(:heart, :four)
+        ])
+
+        hand2 = Hand.new([
+        Card.new(:heart, :eight),
+        Card.new(:club,  :eight),
+        Card.new(:spade, :eight),
+        Card.new(:spade, :seven),
+        Card.new(:heart, :seven)
+        ])
+      expect(hand1.beats?(hand2)).to be true
+    end
+
+
+
+
+  end
+
+  describe '#convert_to_string' do
+
+    it "should convert hand value to a sorted string" do
+      hand1 = Hand.new([
+        Card.new(:heart, :ace),
+        Card.new(:heart, :ten),
+        Card.new(:heart, :jack),
+        Card.new(:spade, :king),
+        Card.new(:heart, :queen)
+        ])
+
+      expect(hand1.convert_to_string).to eq('1413121110')
+    end
+
+    it "should check for ace low straight and switch to low ace conversion" do
+      hand1 = Hand.new([
+
+        Card.new(:heart, :five),
+        Card.new(:heart, :four),
+        Card.new(:heart, :three),
+        Card.new(:spade, :two),
+        Card.new(:heart, :ace)
+        ])
+
+      expect(hand1.convert_to_string).to eq('0504030201')
+    end
+  end
+
+    # it "should know when a full house beats another full house" do
+    #   hand1 = Hand.new([
+    #     Card.new(:heart, :nine),
+    #     Card.new(:club,  :nine),
+    #     Card.new(:spade, :nine),
+    #     Card.new(:spade, :four),
+    #     Card.new(:heart, :four)
+    #     ])
+    #
+    #     hand2 = Hand.new([
+    #     Card.new(:heart, :eight),
+    #     Card.new(:club,  :eight),
+    #     Card.new(:spade, :eight),
+    #     Card.new(:spade, :seven),
+    #     Card.new(:heart, :seven)
+    #     ])
+    #   expect(hand1.beats?(hand2)).to be true
+    # end
+
+
 end
 
-describe Player do
-
-  let(:player) { Player.new }
-  let(:hand) { Hand.new(deck.deal) }
-  let(:deck) { Deck.new }
-
-  describe '#initialize' do
-    it 'should be a player' do
-      expect(player).to be_a(Player)
-    end
-  end
-
-  describe '#pot' do
-    it 'should have a pot' do
-      expect(player.pot).to_not be_nil
-    end
-  end
-
-  describe '#new_hand' do
-    it 'should deal a new hand to the player' do
-      expect(player.new_hand(hand)).to be_a(Hand)
-    end
-  end
-
-  # describe '#get_cards_to_discard' do
-  #   it 'should receive array of cards from the user' do
-  #     expect(player.get_cards_to_discard(cards)).to be_a(Array)
-  #   end
-  #
-  #   it 'should receive array of cards from the user' do
-  #     expect(player.get_cards_to_discard(cards)).to be_a(Array)
-  #   end
-  # end
-
-
-  # describe '#discard' do
-  #   old_hand = hand
-  #   it 'should return a new hand when called' do
-  #     expect(player.discard).to_not eq(old_hand)
-  #   end
-  # end
-
-
-end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# describe Player do
+#
+#   let(:player) { Player.new }
+#   let(:hand) { Hand.new(deck.deal) }
+#   let(:deck) { Deck.new }
+#
+#   describe '#initialize' do
+#     it 'should be a player' do
+#       expect(player).to be_a(Player)
+#     end
+#   end
+#
+#   describe '#pot' do
+#     it 'should have a pot' do
+#       expect(player.pot).to_not be_nil
+#     end
+#   end
+#
+#   describe '#new_hand' do
+#     it 'should deal a new hand to the player' do
+#       expect(player.new_hand(hand)).to be_a(Hand)
+#     end
+#   end
+#
+#   # describe '#get_cards_to_discard' do
+#   #   it 'should receive array of cards from the user' do
+#   #     expect(player.get_cards_to_discard(cards)).to be_a(Array)
+#   #   end
+#   #
+#   #   it 'should receive array of cards from the user' do
+#   #     expect(player.get_cards_to_discard(cards)).to be_a(Array)
+#   #   end
+#   # end
+#
+#
+#   # describe '#discard' do
+#   #   old_hand = hand
+#   #   it 'should return a new hand when called' do
+#   #     expect(player.discard).to_not eq(old_hand)
+#   #   end
+#   # end
+#
+#
+# end
+#
