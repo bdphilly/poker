@@ -361,57 +361,7 @@ describe Hand do
 
       expect(hand1.cards).to eq([a,b,d])
     end
-
-    # it 'should add new cards to the hand' do
-    #   hand.discard([2,4])
-    #
-    #   expect(hand1.cards.length).to eq(5)
-    # end
-
   end
-
-
-  # describe '#discard_cards' do
-  #     hand1 = Hand.new([
-  #       Card.new(:heart, :five),
-  #       Card.new(:club,  :two),
-  #       Card.new(:heart, :queen),
-  #       Card.new(:spade, :jack),
-  #       Card.new(:heart, :ten)
-  #       ])
-  #
-  #     hand2 = Hand.new([
-  #       Card.new(:heart, :queen),
-  #       Card.new(:spade, :jack),
-  #       Card.new(:heart, :ten)
-  #       ])
-  #
-  #
-  #   it "should discard 2 cards" do
-  #     expect(hand1.discard(1,2)).to eq(hand2)
-  #   end
-  #
-  #   it "hand card count should be 3" do
-  #     expect(hand1.count).to eq(3)
-  #   end
-  # end
-
-
-  # describe '#draw_cards' do
-  #   it "should "
-  #
-  #
-  #
-  #
-
-
-
-
-
-
-
-
-
 end
 
 describe Player do
@@ -442,6 +392,20 @@ describe Player do
     end
   end
 
+  describe '#fold' do
+    it 'should set folded? to true' do
+      player.fold
+      player.should be_folded
+    end
+  end
+
+  describe '#unfold' do
+    it 'should unfold the player' do
+      player.unfold
+      player.should_not be_folded
+    end
+  end
+end
 
 
   # describe "#swap_cards" do
@@ -493,6 +457,31 @@ describe Player do
   #     expect(player.trade_cards(1,2)).to eq(hand2)
   #   end
   # end
+
+describe Game do
+
+  let(:player) { Player.new }
+  let(:hand) { Hand.new(deck.deal) }
+  let(:deck) { Deck.new }
+
+  describe '#initialize' do
+    it 'should be a player' do
+      expect(player).to be_a(Player)
+    end
+  end
+
+  describe '#bankroll' do
+    it 'should have a bankroll' do
+      expect(player.bankroll).to_not be_nil
+    end
+
+    it 'automatically starts at 1000 chips' do
+      expect(player.bankroll).to eq(1000)
+    end
+
+  end
+
+
 
 
 

@@ -59,7 +59,7 @@ class Deck
   end
 
   def deal(num = 5)
-    self.all_cards.shuffle.pop(num)
+    self.all_cards.pop(num)
   end
 end
 
@@ -224,7 +224,7 @@ end
 
 class Player
 
-  attr_accessor :bankroll, :hand
+  attr_accessor :bankroll, :hand, :name
 
   def initialize(bankroll = 1000)
     @bankroll = bankroll
@@ -234,41 +234,138 @@ class Player
     self.hand = hand
   end
 
+  def fold
+    @folded = true
+  end
+
+  def unfold
+    @folded = false unless bankroll.zero?
+  end
+
+  def folded?
+    bankroll.zero? || @folded
+  end
+
+end
+
+class Game
+
+  attr_accessor :players, :pot, :deck
+
+  def initialize
+    @players, @pot, @deck = [], 0, Deck.new.shuffle
+  end
+
+  def add_player(player)
+    @players << player
+  end
+
+  def deal_new_hand(hand)
+    self.hand = hand
+  end
 
 
-  # hand = Hand.new(deck.deal)
-  #in Game class, to deal:   player_1.new_hand(hand)
+  def unfold_players
+    players.each do |player|
+      player.unfold
+    end
+  end
+
+  def deal_cards
+    self.deck = Deck.new.shuffle
+    players.each do |player|
+      next if player.folded?
+      player.deal_new_hand(deck.deal)
+    end
+  end
+
+  def betting_round
+    #Need to write
+  end
+
+  def discard_and_trade_cards
+    players.each_with_index do |player, index|
+      next if player.folded?
+      puts "Player #{i + 1}:"
+      puts player.hand #need to write to_s method
+      puts "What cards would you like to trade?"
+      puts "Please enter the indicies of your card."
+      input = gets.chomp
+      unless input.nil?
+        player.hand.discard(input)
+        player.hand.deal(input.length)
+      end
+      puts player.hand
+    end
+  end
+
+  def end_of_round
+    puts "Let's see those hands folks!"
+    players.each_with_index do |player, i|
+      next if player.folded?
+      puts "Player #{i + 1} : #{player.hand}"
+    end
+  end
+
+  def winner
+    raise "We're moving onto the next round..." unless game_over?
+    players.sort.last
+  end
+
+  def game_over?
+    players.select { |player| !player.bankroll == 0 }.count == 1
+  end
+
+  def game_order
+    # unfold players
+    # deal/new deck
+    # place_bets
+    # fold
+    # ennd round && return if game over
+    # discard and trade cards
+    # take bets
+    # end round/winner of round
+  end
 
 
 
 
 
-    # organize hand into sorted array of cards
-    #### METHOD
+  def deal
 
-    # puts "here is your hand #{hand}"
-    #
-    # puts 'what cards? you can only discard 3.'
-
-    #the player returns [2,3]
-    ##### METHOD
-
-    # find hand[2], hand[3] and remove from hand
-    ##### METHOD
-
-    # hand currently has 3 cards
-
-    # hand << deck.deal(2)
-
-    #RETURNS new hand
-
-
-    #....player1.hand = the new hand
+  end
 
 
 
 
 end
+
+
+
+# hand = Hand.new(deck.deal)
+#in Game class, to deal:   player_1.new_hand(hand)
+
+  # organize hand into sorted array of cards
+  #### METHOD
+
+  # puts "here is your hand #{hand}"
+  #
+  # puts 'what cards? you can only discard 3.'
+
+  #the player returns [2,3]
+  ##### METHOD
+
+  # find hand[2], hand[3] and remove from hand
+  ##### METHOD
+
+  # hand currently has 3 cards
+
+  # hand << deck.deal(2)
+
+  #RETURNS new hand
+
+
+  #....player1.hand = the new hand
 
 # class Game
 #
