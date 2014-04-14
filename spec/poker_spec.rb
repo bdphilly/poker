@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 require 'poker'
 
 describe Card do
@@ -117,6 +119,17 @@ describe Hand do
         expect(hand.flush?).to be true
       end
 
+      it "should recognize a non-straight" do
+        hand = Hand.new([
+          Card.new(:heart, :eight),
+          Card.new(:spade, :six),
+          Card.new(:heart, :six),
+          Card.new(:heart, :five),
+          Card.new(:spade, :four)
+          ])
+        expect(hand.straight?).to be false
+      end
+
       it "should recognize a straight without an ace" do
         hand = Hand.new([
           Card.new(:heart, :eight),
@@ -210,6 +223,8 @@ describe Hand do
     end
   end
 
+  describe '#beats' do
+
     it "should know when a jack high straight beats a ten high straight" do
       hand1 = Hand.new([
         Card.new(:heart, :jack),
@@ -248,7 +263,6 @@ describe Hand do
       expect(hand1.beats?(hand2)).to be true
     end
 
-  describe '#beats' do
 
     it "should know when a straight beats two pair" do
       hand1 = Hand.new([
@@ -288,9 +302,6 @@ describe Hand do
       expect(hand1.beats?(hand2)).to be true
     end
 
-
-
-
   end
 
   describe '#convert_to_string' do
@@ -321,70 +332,169 @@ describe Hand do
     end
   end
 
-    # it "should know when a full house beats another full house" do
-    #   hand1 = Hand.new([
-    #     Card.new(:heart, :nine),
-    #     Card.new(:club,  :nine),
-    #     Card.new(:spade, :nine),
-    #     Card.new(:spade, :four),
-    #     Card.new(:heart, :four)
-    #     ])
+  describe '#sort' do
+    it 'should sort hand by value' do
+      hand1 = Hand.new([
+        e = Card.new(:heart, :ten),
+        a = Card.new(:heart, :ace),
+        c = Card.new(:heart, :queen),
+        b = Card.new(:heart, :king),
+        d = Card.new(:heart, :jack)
+        ])
+
+      expect(hand1.sort).to eq([a, b, c, d, e])
+    end
+  end
+
+  describe '#discard' do
+
+    hand1 = Hand.new([
+      a = Card.new(:heart, :queen),
+      b = Card.new(:club,  :queen),
+      c = Card.new(:heart, :ten),
+      d = Card.new(:spade, :nine),
+      e = Card.new(:heart, :eight)
+      ])
+
+    it 'should remove cards from the hand' do
+      hand1.discard([2,4])
+
+      expect(hand1.cards).to eq([a,b,d])
+    end
+
+    # it 'should add new cards to the hand' do
+    #   hand.discard([2,4])
     #
-    #     hand2 = Hand.new([
-    #     Card.new(:heart, :eight),
-    #     Card.new(:club,  :eight),
-    #     Card.new(:spade, :eight),
-    #     Card.new(:spade, :seven),
-    #     Card.new(:heart, :seven)
-    #     ])
-    #   expect(hand1.beats?(hand2)).to be true
+    #   expect(hand1.cards.length).to eq(5)
     # end
+
+  end
+
+
+  # describe '#discard_cards' do
+  #     hand1 = Hand.new([
+  #       Card.new(:heart, :five),
+  #       Card.new(:club,  :two),
+  #       Card.new(:heart, :queen),
+  #       Card.new(:spade, :jack),
+  #       Card.new(:heart, :ten)
+  #       ])
+  #
+  #     hand2 = Hand.new([
+  #       Card.new(:heart, :queen),
+  #       Card.new(:spade, :jack),
+  #       Card.new(:heart, :ten)
+  #       ])
+  #
+  #
+  #   it "should discard 2 cards" do
+  #     expect(hand1.discard(1,2)).to eq(hand2)
+  #   end
+  #
+  #   it "hand card count should be 3" do
+  #     expect(hand1.count).to eq(3)
+  #   end
+  # end
+
+
+  # describe '#draw_cards' do
+  #   it "should "
+  #
+  #
+  #
+  #
+
+
+
+
+
+
+
 
 
 end
 
-# describe Player do
-#
-#   let(:player) { Player.new }
-#   let(:hand) { Hand.new(deck.deal) }
-#   let(:deck) { Deck.new }
-#
-#   describe '#initialize' do
-#     it 'should be a player' do
-#       expect(player).to be_a(Player)
-#     end
-#   end
-#
-#   describe '#pot' do
-#     it 'should have a pot' do
-#       expect(player.pot).to_not be_nil
-#     end
-#   end
-#
-#   describe '#new_hand' do
-#     it 'should deal a new hand to the player' do
-#       expect(player.new_hand(hand)).to be_a(Hand)
-#     end
-#   end
-#
-#   # describe '#get_cards_to_discard' do
-#   #   it 'should receive array of cards from the user' do
-#   #     expect(player.get_cards_to_discard(cards)).to be_a(Array)
-#   #   end
-#   #
-#   #   it 'should receive array of cards from the user' do
-#   #     expect(player.get_cards_to_discard(cards)).to be_a(Array)
-#   #   end
-#   # end
-#
-#
-#   # describe '#discard' do
-#   #   old_hand = hand
-#   #   it 'should return a new hand when called' do
-#   #     expect(player.discard).to_not eq(old_hand)
-#   #   end
-#   # end
-#
-#
-# end
-#
+describe Player do
+
+  let(:player) { Player.new }
+  let(:hand) { Hand.new(deck.deal) }
+  let(:deck) { Deck.new }
+
+  describe '#initialize' do
+    it 'should be a player' do
+      expect(player).to be_a(Player)
+    end
+  end
+
+  describe '#bankroll' do
+    it 'should have a bankroll' do
+      expect(player.bankroll).to_not be_nil
+    end
+
+    it 'automatically starts at 1000 chips' do
+      expect(player.bankroll).to eq(1000)
+    end
+  end
+
+  describe '#deal_new_hand' do
+    it 'should deal a new hand to the player' do
+      expect(player.deal_new_hand(hand)).to be_a(Hand)
+    end
+  end
+
+
+
+  # describe "#swap_cards" do
+  #   describe "#discard" do
+  #     it "discards the right number of cards" do
+  #       expect { hand.discard!([0, 3]) }.to change{ hand.count }.by(-2)
+  #     end
+  #     it "discards the right cards" do
+  #       hand.discard!([0, 3])
+  #       expect(hand.display).to eq("K♠ | 10♠ | 3♠")
+  #     end
+  #   end
+
+
+  #
+  #   it 'should return a new hand when called' do
+  #     expect(player.discard).to_not eq(old_hand)
+  #   end
+  #
+  #
+  # describe '#discard' do
+  #   old_hand = hand
+  #   it 'should return a new hand when called' do
+  #     expect(player.discard).to_not eq(old_hand)
+  #   end
+  # end
+
+
+
+  # describe '#trade_cards' do
+  #   it 'should trade 2 cards for 2 new cards' do
+  #     hand1 = Hand.new([
+  #
+  #       Card.new(:heart, :five),
+  #       Card.new(:club,  :two),
+  #       Card.new(:heart, :queen),
+  #       Card.new(:spade, :jack),
+  #       Card.new(:heart, :ten)
+  #       ])
+  #
+  #     hand2 = Hand.new([
+  #
+  #       Card.new(:heart, :ace),
+  #       Card.new(:club,  :king),
+  #       Card.new(:heart, :queen),
+  #       Card.new(:spade, :jack),
+  #       Card.new(:heart, :ten)
+  #       ])
+  #     expect(player.trade_cards(1,2)).to eq(hand2)
+  #   end
+  # end
+
+
+
+end
+
